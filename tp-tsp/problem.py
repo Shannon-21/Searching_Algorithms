@@ -193,3 +193,4 @@ class TSP(OptProblem):
         shuffle(self.init)  # mezclar la lista
         self.init.append(0)  # agregar a 0 como inicio del tour
         self.init.insert(0, 0)  # agregar a 0 como fin del tour
+
