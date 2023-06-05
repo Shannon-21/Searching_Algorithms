@@ -1,7 +1,7 @@
 # Tecnicatura Universitaria en Inteligencia Artificial
 
 ## **Trabajo Práctico 1 y 2 - Searching_Algorithms**
-## Programación 3 - Comisión 2 - 5/6/2023
+## Programación 3 - 5/6/2023
 
 **Integrantes del equipo:**
 - Giampaoli Fabio
