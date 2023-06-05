@@ -10,18 +10,39 @@ class BreadthFirstSearch:
         """Find path between two points in a grid using Breadth First Search
 
         Args:
-            grid (Grid): Grid of points
-            
+        grid (Grid): Grid of points
+
         Returns:
-            Solution: Solution found
+        Solution: Solution found
         """
-        # Initialize a node with the initial position
+
+        # inicializa la busqueda desde la raiz
         node = Node("", grid.start, 0)
 
-        # Initialize the explored dictionary to be empty
-        explored = {} 
-        
-        # Add the node to the explored dictionary
+        explored = {}
         explored[node.state] = True
-        
-        return NoSolution(explored)
+
+        if node.state == grid.end: return Solution(node, explored)
+
+        frontier = QueueFrontier()
+        frontier.add(node)
+
+        while True:
+            # recorre y elije un nodo de la frontera
+            if frontier.is_empty(): return NoSolution(explored)
+            nodo = frontier.remove()
+            explored[nodo.state] = True
+            neighbours = grid.get_neighbours(nodo.state)
+
+            # expande el nodo seleccionado
+            for position in neighbours:
+                child = Node("", neighbours[position],
+                             nodo.cost + grid.get_cost(neighbours[position]),
+                             nodo, position)
+                
+                if child.state == grid.end: return Solution(child, explored)
+
+                # añade el hijo a la frontera
+                if child.state not in explored:
+                    explored[child.state] = True
+                    frontier.add(child)

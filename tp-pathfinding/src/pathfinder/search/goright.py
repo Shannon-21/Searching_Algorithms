@@ -15,39 +15,26 @@ class GoRight:
         Returns:
             Solution: Solution found
         """
-        # Initialize a node with the initial position
+
         node = Node("", state=grid.start, cost=0)
 
-        # Initialize the explored dictionary to be empty
         explored = {} 
 
-        # Initialize the frontier with the initial node
         frontier = QueueFrontier()
         frontier.add(node)
 
         while True:
-
-            #  Fail if the frontier is empty
-            if frontier.is_empty():
-                return NoSolution(explored)
-
-            # Remove a node from the frontier
+            if frontier.is_empty(): return NoSolution(explored)
             node = frontier.remove()
-
-            # Mark the node as explored
             explored[node.state] = True
 
-            # Return if the node contains a goal state
-            if node.state == grid.end:
-                return Solution(node, explored)
-
-            # Go right
+            if node.state == grid.end: return Solution(node, explored)
             neighbours = grid.get_neighbours(node.state)
+
             if 'right' in neighbours:
                 new_state = neighbours['right']
                 new_node = Node("", new_state, node.cost + grid.get_cost(new_state))
                 new_node.parent = node
                 new_node.action = 'right'
 
-                # Add the new node to the frontier
                 frontier.add(new_node)
