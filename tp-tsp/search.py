@@ -105,6 +105,7 @@ class HillClimbingReset(LocalSearch):
         start = time()
 
         # Controla el numero de iteraciones antes de un reset
+        # Esta configuracion funciona bien para att48, puede variar en los demas problemas
         n_iters = 0
         iters_to_reset = 45
 
@@ -145,7 +146,7 @@ class HillClimbingReset(LocalSearch):
                 if actual.value > best.value:
                     best = actual
 
-                # Esta configuracion funciona bien para att48, puede variar en los demas problemas
+                # resetea el algoritmo desde un estado aleatorio, recordando la solucion de la iteracion actual
                 if n_iters >= iters_to_reset:
                     print("--- Hill Climbing Reset --- solution: ", {best.value})
                     bests.append(best)  # Agregar el mejor estado actual a la lista
@@ -153,7 +154,7 @@ class HillClimbingReset(LocalSearch):
                     problem.random_reset()
                     n_iters = 0
 
-        # Encontrar el mejor estado en la lista bests y actualizar la variable best
+        # Encontrar el mejor estado en la lista bests
         best = max(bests, key=lambda node: node.value)
 
         # Actualizar la variable best del algoritmo
