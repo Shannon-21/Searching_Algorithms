@@ -106,9 +106,16 @@ class HillClimbingReset(LocalSearch):
 
         # Controla el numero de iteraciones antes de un reset
         n_iters = 0
+        iters_to_reset = 45
 
         # Crear el nodo inicial
         actual = Node(problem.init, problem.obj_val(problem.init))
+
+        # Mejor estado encontrado hasta el momento
+        best = actual
+
+        # Lista para almacenar las mejores soluciones en cada reset
+        bests = []
 
         while True:
             # Determinar las acciones que se pueden aplicar y las diferencias en valor objetivo que resultan
@@ -133,14 +140,28 @@ class HillClimbingReset(LocalSearch):
                 actual = Node(problem.result(actual.state, act), actual.value + diff[act])
                 self.niters += 1
                 n_iters += 1
-                
+
+                # Verificar si se encontró un nuevo mejor estado
+                if actual.value > best.value:
+                    best = actual
+
                 # Esta configuracion funciona bien para att48, puede variar en los demas problemas
-                if n_iters > 45:
-                    print("--------------- Hill Climbing Reset ---------------")
+                if n_iters >= iters_to_reset:
+                    print("--- Hill Climbing Reset --- solution: ", {best.value})
+                    bests.append(best)  # Agregar el mejor estado actual a la lista
                     actual = Node(problem.init, problem.obj_val(problem.init))
                     problem.random_reset()
                     n_iters = 0
-                    
+
+        # Encontrar el mejor estado en la lista bests y actualizar la variable best
+        best = max(bests, key=lambda node: node.value)
+
+        # Actualizar la variable best del algoritmo
+        self.tour = best.state
+        self.value = best.value
+        end = time()
+        self.time = end - start
+
 
 class Tabu(LocalSearch):
     """Algoritmo de búsqueda Tabu."""
@@ -163,9 +184,11 @@ class Tabu(LocalSearch):
         # Confugraciones iniciales, funcionan bien para att48, puede variar en los demas problemas
         tabu_list = []
         max_iterations = 100
-        max_iterations_without_improvement = 10
-        max_tabu_iterations = 20
+        max_iterations_without_improvement = 5
+        diversification_theresold = 5
+        max_tabu_iterations = 5
         iterations_without_improvement = 0
+
 
         # Criterio de parada: Maximo numero de iteraciones y maximo numero numero de iteraciones sin mejora
         while self.niters < max_iterations and iterations_without_improvement < max_iterations_without_improvement:
@@ -176,13 +199,18 @@ class Tabu(LocalSearch):
                 successor = problem.result(current.state, action)
                 successors.append(successor)
 
-            # Elije el mejor nodo que no es tabu
+            # Elije el mejor nodo que no es tabu o cumple con el criterio de aspiracion
             best_successor = None
             for successor in successors:
-                if successor not in tabu_list:
-                    successor_value = problem.obj_val(successor)
+                successor_value = problem.obj_val(successor)
+                if successor not in tabu_list or successor_value > best.value:
                     if best_successor is None or successor_value > problem.obj_val(best_successor):
                         best_successor = successor
+
+            # Criterio de diversificacion: Agregar estados no explorados cada n iteraciones
+            if self.niters % diversification_theresold == 0:
+                new_state = problem.random_reset()
+                successors.append(new_state)
 
             # Actualiza la lista tabu, remueve los estados que han permanecido por n iteraciones
             tabu_list.append(best_successor)
